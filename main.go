@@ -1,33 +1,36 @@
 package main
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"log"
+
+	"golang.org/x/crypto/md4"
 )
 
 func main() {
-	filePath := "README.md" // Replace with the actual path to your file
+	var contentHash string
+	var err error = nil
+	if contentHash, err = GetContentHash("5cd1c5aa2fe84531e16ce555f52b1edf.png"); err != nil {
+		log.Fatal("Program fails")
+	}
+	fmt.Printf("%t\n", contentHash == "5cd1c5aa2fe84531e16ce555f52b1edf")
 
-	// Read the file content
+	if contentHash, err = GetContentHash("f50a48f9b225510cf64ccef53469641f.png"); err != nil {
+		log.Fatal("Program fails")
+	}
+	fmt.Printf("%t\n", contentHash == "f50a48f9b225510cf64ccef53469641f")
+}
+
+func GetContentHash(filePath string) (string, error) {
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
-	// Create a new SHA256 hash instance
-	hash := sha256.New()
-
-	// Write the file content to the hash instance
+	hash := md4.New()
 	hash.Write(content)
-
-	// Get the computed hash sum
-	hashSum := hash.Sum(nil)
-
-	// Convert the hash sum to hexadecimal string
-	hashString := hex.EncodeToString(hashSum)
-
-	fmt.Println(hashString)
+	hashString := hex.EncodeToString(hash.Sum(nil)[:])
+	return hashString, nil
 }
